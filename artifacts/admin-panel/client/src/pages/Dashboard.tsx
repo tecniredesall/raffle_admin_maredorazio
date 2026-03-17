@@ -31,8 +31,7 @@ interface Transaction {
 
 function mapRegistroToTransaction(data: RegistroData): Transaction {
   const statusMap: Record<string, TransactionStatus> = {
-    register: 'pending',
-    confirmed: 'confirmed',
+    verified: 'confirmed',
     rejected: 'rejected',
   };
 
