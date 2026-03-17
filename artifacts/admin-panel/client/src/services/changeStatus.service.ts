@@ -10,7 +10,9 @@ export async function confirmTickets(id: string, transactionId: string): Promise
     body: JSON.stringify({ id, transactionId }),
   });
 
+  const json = await response.json();
+
   if (!response.ok) {
-    throw new Error(`Error al confirmar pago: ${response.status}`);
+    throw new Error(json?.data?.error || `Error al confirmar pago: ${response.status}`);
   }
 }

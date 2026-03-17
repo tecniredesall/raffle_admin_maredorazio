@@ -29,11 +29,12 @@ export async function getRegistro(id: string, transactionId: string): Promise<Re
   const url = `${environment.apiBaseUrl}/rifa/registro?id=${encodeURIComponent(id)}&transactionId=${encodeURIComponent(transactionId)}`;
   const response = await fetch(url);
 
+  const json = await response.json();
+
   if (!response.ok) {
-    throw new Error(`Error al obtener registro: ${response.status}`);
+    throw new Error(json?.data?.error || `Error al obtener registro: ${response.status}`);
   }
 
-  const json: RegistroResponse = await response.json();
   return json.data;
 }
 
