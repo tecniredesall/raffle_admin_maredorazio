@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getRegistro, buildImageUrl, type RegistroData } from '@/services/registro.service';
+import { confirmTickets } from '@/services/changeStatus.service';
 
 type TransactionStatus = 'pending' | 'confirmed' | 'rejected';
 
@@ -54,8 +55,11 @@ function mapRegistroToTransaction(data: RegistroData): Transaction {
 export function Dashboard() {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageOpen, setImageOpen] = useState(false);
+  const [urlId, setUrlId] = useState('');
+  const [urlTransactionId, setUrlTransactionId] = useState('');
 
   useEffect(() => {
     const basePath = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
@@ -71,6 +75,9 @@ export function Dashboard() {
       return;
     }
 
+    setUrlId(id);
+    setUrlTransactionId(transactionId);
+
     getRegistro(id, transactionId)
       .then((data) => {
         setTransaction(mapRegistroToTransaction(data));
@@ -83,8 +90,16 @@ export function Dashboard() {
       });
   }, []);
 
-  const handleConfirm = () => {
-    setTransaction(prev => prev ? ({ ...prev, status: 'confirmed', confirmedAt: new Date().toISOString() }) : prev);
+  const handleConfirm = async () => {
+    setConfirming(true);
+    try {
+      await confirmTickets(urlId, urlTransactionId);
+      setTransaction(prev => prev ? ({ ...prev, status: 'confirmed', confirmedAt: new Date().toISOString() }) : prev);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setConfirming(false);
+    }
   };
 
   const handleReject = () => {
