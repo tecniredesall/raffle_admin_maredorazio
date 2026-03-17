@@ -58,13 +58,15 @@ export function Dashboard() {
   const [imageOpen, setImageOpen] = useState(false);
 
   useEffect(() => {
-    const raw = window.location.pathname.replace(/^\//, '') + window.location.search.replace(/^\?/, '');
-    const params = new URLSearchParams(raw);
-    const id = params.get('id');
-    const transactionId = params.get('transactionId');
+    const basePath = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+    const pathname = window.location.pathname.replace(new RegExp(`^${basePath}`), '');
+    const segments = pathname.split('/').filter(Boolean);
+
+    const id = segments[0] || null;
+    const transactionId = segments[1] || null;
 
     if (!id || !transactionId) {
-      setError('Enlace inválido. Faltan parámetros de identificación (id y transactionId).');
+      setError('Enlace inválido. La URL debe tener el formato: /id/transactionId');
       setLoading(false);
       return;
     }
@@ -163,6 +165,11 @@ export function Dashboard() {
             <CreditCard className="h-4 w-4" />
             <span>{transaction.paymentMethod}</span>
           </div>
+
+          <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+            <Hash className="h-4 w-4" />
+            <span>Referencia: {transaction.reference}</span>
+          </div>
         </motion.div>
 
         <motion.div
@@ -180,7 +187,6 @@ export function Dashboard() {
             <InfoRow icon={<CreditCard />} label="Cedula" value={transaction.cedula} />
             <InfoRow icon={<Phone />} label="Telefono" value={transaction.phone} />
             <InfoRow icon={<Mail />} label="Email" value={transaction.email} />
-            <InfoRow icon={<Hash />} label="Referencia" value={transaction.reference} />
           </div>
         </motion.div>
 
