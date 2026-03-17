@@ -34,6 +34,7 @@ function mapRegistroToTransaction(data: RegistroData): Transaction {
   const statusMap: Record<string, TransactionStatus> = {
     verified: 'confirmed',
     rejected: 'rejected',
+    error: 'rejected',
   };
 
   return {
