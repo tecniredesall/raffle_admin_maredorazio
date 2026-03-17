@@ -27,6 +27,7 @@ interface Transaction {
   status: TransactionStatus;
   createdAt: string;
   confirmedAt?: string;
+  hasTickets: boolean;
 }
 
 function mapRegistroToTransaction(data: RegistroData): Transaction {
@@ -48,6 +49,7 @@ function mapRegistroToTransaction(data: RegistroData): Transaction {
     paymentProofUrl: buildImageUrl(data.img_url),
     status: statusMap[data.status] || 'pending',
     createdAt: data.createdAt,
+    hasTickets: Array.isArray(data.tickets) && data.tickets.length > 0,
   };
 }
 
@@ -241,7 +243,7 @@ export function Dashboard() {
           </div>
         </motion.div>
 
-        {transaction.status === 'pending' && (
+        {transaction.status === 'pending' && !transaction.hasTickets && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
