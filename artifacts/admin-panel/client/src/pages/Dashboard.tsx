@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getRegistro, buildImageUrl, type RegistroData } from '@/services/registro.service';
-import { confirmTickets } from '@/services/changeStatus.service';
+import { confirmTickets, rejectTickets } from '@/services/changeStatus.service';
 
 type TransactionStatus = 'pending' | 'confirmed' | 'rejected';
 
@@ -56,6 +56,7 @@ export function Dashboard() {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageOpen, setImageOpen] = useState(false);
   const [urlId, setUrlId] = useState('');
@@ -102,8 +103,16 @@ export function Dashboard() {
     }
   };
 
-  const handleReject = () => {
-    setTransaction(prev => prev ? ({ ...prev, status: 'rejected' }) : prev);
+  const handleReject = async () => {
+    setRejecting(true);
+    try {
+      await rejectTickets(urlId, urlTransactionId);
+      setTransaction(prev => prev ? ({ ...prev, status: 'rejected' }) : prev);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setRejecting(false);
+    }
   };
 
   if (loading) {
@@ -243,17 +252,19 @@ export function Dashboard() {
             <Button
               variant="destructive"
               onClick={handleReject}
+              disabled={rejecting || confirming}
               className="w-full sm:w-1/2 gap-2 h-12 text-base"
             >
-              <XCircle className="h-5 w-5" />
-              Rechazar
+              {rejecting ? <Loader2 className="h-5 w-5 animate-spin" /> : <XCircle className="h-5 w-5" />}
+              {rejecting ? 'Rechazando...' : 'Rechazar'}
             </Button>
             <Button
               onClick={handleConfirm}
+              disabled={confirming || rejecting}
               className="w-full sm:w-1/2 gap-2 h-12 text-base"
             >
-              <CheckCircle className="h-5 w-5" />
-              Confirmar Pago
+              {confirming ? <Loader2 className="h-5 w-5 animate-spin" /> : <CheckCircle className="h-5 w-5" />}
+              {confirming ? 'Confirmando...' : 'Confirmar Pago'}
             </Button>
           </motion.div>
         )}
