@@ -59,8 +59,14 @@ export function Dashboard() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const id = params.get('id') || '590520852520927455638852';
-    const transactionId = params.get('transactionId') || 'LCH01-3887';
+    const id = params.get('id');
+    const transactionId = params.get('transactionId');
+
+    if (!id || !transactionId) {
+      setError('Enlace inválido. Faltan parámetros de identificación (id y transactionId).');
+      setLoading(false);
+      return;
+    }
 
     getRegistro(id, transactionId)
       .then((data) => {
