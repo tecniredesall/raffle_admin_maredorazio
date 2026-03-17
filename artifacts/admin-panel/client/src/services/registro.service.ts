@@ -15,6 +15,8 @@ export interface RegistroData {
   name: string;
   email: string;
   telefono: string;
+  cedula?: string;
+  referencia?: string;
   moneda: string;
   precioUnitario: number;
   cantidad: number;

@@ -40,10 +40,10 @@ function mapRegistroToTransaction(data: RegistroData): Transaction {
   return {
     transactionNumber: data.transactionId,
     name: data.name,
-    cedula: data.id,
+    cedula: data.cedula || '',
     phone: data.telefono,
     email: data.email,
-    reference: data.rifaId,
+    reference: data.referencia || '',
     seedCount: data.cantidad,
     totalAmount: `${data.total} ${data.moneda}`,
     paymentMethod: data.metodoPago,
