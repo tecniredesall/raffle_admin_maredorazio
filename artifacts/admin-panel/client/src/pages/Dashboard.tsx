@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle, XCircle, FileImage, CreditCard, Hash, 
-  Phone, Mail, User, ShieldCheck, Coins, Calendar, ImageIcon
+  Phone, Mail, User, ShieldCheck, Coins, Calendar, ImageIcon, Loader2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { getRegistro, buildImageUrl, type RegistroData } from '@/services/registro.service';
 
 type TransactionStatus = 'pending' | 'confirmed' | 'rejected';
 
@@ -27,32 +28,82 @@ interface Transaction {
   confirmedAt?: string;
 }
 
-const MOCK_TRANSACTION: Transaction = {
-  transactionNumber: 'GM16598',
-  name: 'Freddy Hidalgo',
-  cedula: 'V-18264582',
-  phone: '+58 25555555',
-  email: 'hifreddytech@gmail.com',
-  reference: 'Hhhshhshe',
-  seedCount: 4,
-  totalAmount: '18 MXN',
-  paymentMethod: 'Transferencia SPEI',
-  status: 'pending',
-  createdAt: '2024-05-12T10:30:00Z',
-  paymentProofUrl: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=600&h=800',
-};
+function mapRegistroToTransaction(data: RegistroData): Transaction {
+  const statusMap: Record<string, TransactionStatus> = {
+    register: 'pending',
+    confirmed: 'confirmed',
+    rejected: 'rejected',
+  };
+
+  return {
+    transactionNumber: data.transactionId,
+    name: data.name,
+    cedula: data.id,
+    phone: data.telefono,
+    email: data.email,
+    reference: data.rifaId,
+    seedCount: data.cantidad,
+    totalAmount: `${data.total} ${data.moneda}`,
+    paymentMethod: data.metodoPago,
+    paymentProofUrl: buildImageUrl(data.img_url),
+    status: statusMap[data.status] || 'pending',
+    createdAt: data.createdAt,
+  };
+}
 
 export function Dashboard() {
-  const [transaction, setTransaction] = useState<Transaction>(MOCK_TRANSACTION);
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [imageOpen, setImageOpen] = useState(false);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id') || '590520852520927455638852';
+    const transactionId = params.get('transactionId') || 'LCH01-3887';
+
+    getRegistro(id, transactionId)
+      .then((data) => {
+        setTransaction(mapRegistroToTransaction(data));
+      })
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
   const handleConfirm = () => {
-    setTransaction(prev => ({ ...prev, status: 'confirmed', confirmedAt: new Date().toISOString() }));
+    setTransaction(prev => prev ? ({ ...prev, status: 'confirmed', confirmedAt: new Date().toISOString() }) : prev);
   };
 
   const handleReject = () => {
-    setTransaction(prev => ({ ...prev, status: 'rejected' }));
+    setTransaction(prev => prev ? ({ ...prev, status: 'rejected' }) : prev);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Cargando registro...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !transaction) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center max-w-md mx-4">
+          <XCircle className="h-10 w-10 text-rose-500 mx-auto mb-2" />
+          <p className="text-lg font-bold text-rose-700">Error al cargar</p>
+          <p className="text-sm text-rose-600 mt-1">{error || 'No se pudo obtener el registro'}</p>
+        </div>
+      </div>
+    );
+  }
 
   const formattedDate = format(new Date(transaction.createdAt), "d 'de' MMMM, yyyy · HH:mm", { locale: es });
 
