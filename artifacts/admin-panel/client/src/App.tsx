@@ -10,8 +10,8 @@ const queryClient = new QueryClient();
 function Router() {
   return (
     <Switch>
+      <Route path="/:rest*" component={Dashboard} />
       <Route path="/" component={Dashboard} />
-      <Route component={NotFound} />
     </Switch>
   );
 }

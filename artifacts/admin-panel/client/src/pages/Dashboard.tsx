@@ -58,7 +58,8 @@ export function Dashboard() {
   const [imageOpen, setImageOpen] = useState(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const raw = window.location.pathname.replace(/^\//, '') + window.location.search.replace(/^\?/, '');
+    const params = new URLSearchParams(raw);
     const id = params.get('id');
     const transactionId = params.get('transactionId');
 
