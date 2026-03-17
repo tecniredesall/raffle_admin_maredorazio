@@ -1,0 +1,19 @@
+packages:
+  "framer-motion": "For fluid, premium animations and layout transitions"
+  "clsx": "For conditional class merging"
+  "tailwind-merge": "For merging tailwind classes without conflicts"
+  "date-fns": "For formatting transaction dates"
+  "lucide-react": "For crisp, modern icons"
+
+images:
+  - path: "artifacts/admin-panel/public/images/logo.png"
+    description: "A minimal, premium geometric logo mark in warm golden/amber colors on a transparent background, suitable for a high-end raffle or lottery brand"
+    aspect_ratio: "1:1"
+  - path: "artifacts/admin-panel/public/images/hero-glow.png"
+    description: "A soft, elegant abstract light leak and gradient mesh background using warm golden, amber, and soft white tones. Very subtle and premium."
+    aspect_ratio: "16:9"
+
+notes:
+  - "No backend required. Using local state and mock data for all transactions."
+  - "Theme emphasizes clean, minimal professionalism with golden/amber accents."
+  - "Mobile-first responsive design implemented via Tailwind."
