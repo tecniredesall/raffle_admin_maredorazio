@@ -65,15 +65,12 @@ export function Dashboard() {
   const [urlTransactionId, setUrlTransactionId] = useState('');
 
   useEffect(() => {
-    const basePath = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
-    const pathname = window.location.pathname.replace(new RegExp(`^${basePath}`), '');
-    const segments = pathname.split('/').filter(Boolean);
-
-    const id = segments[0] || null;
-    const transactionId = segments[1] || null;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const transactionId = params.get('transaction');
 
     if (!id || !transactionId) {
-      setError('Enlace inválido. La URL debe tener el formato: /id/transactionId');
+      setError('Enlace inválido. La URL debe tener el formato: ?id=xxx&transaction=xxx');
       setLoading(false);
       return;
     }
