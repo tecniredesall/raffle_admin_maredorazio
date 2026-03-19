@@ -18,13 +18,13 @@ export async function confirmTickets(id: string, transactionId: string): Promise
 }
 
 export async function rejectTickets(id: string, transactionId: string): Promise<void> {
-  const url = `${environment.apiBaseUrl}/rifa/registro?id=${encodeURIComponent(id)}&transactionId=${encodeURIComponent(transactionId)}`;
+  const url = `${environment.apiBaseUrl}/rifa/registro/status`;
   const response = await fetch(url, {
-    method: "POST",
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ status: "rejected" }),
+    body: JSON.stringify({ id, transactionId, status: "rejected" }),
   });
 
   const json = await response.json();
