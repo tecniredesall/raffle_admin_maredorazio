@@ -1,3 +1,3 @@
 export const environment = {
-  apiBaseUrl: "https://api.maredorazio.com/dev/dev",
+  apiBaseUrl: "https://api.maredorazio.com/dev/",
 };
