@@ -1,3 +1,4 @@
 export const environment = {
-  apiBaseUrl: "https://api.maredorazio.com/dev",
+  apiBaseUrl:
+    import.meta.env.VITE_API_BASE_URL || "https://api.maredorazio.com",
 };
