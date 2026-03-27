@@ -64,13 +64,15 @@ export function Dashboard() {
   const [urlId, setUrlId] = useState('');
   const [urlTransactionId, setUrlTransactionId] = useState('');
 
+  const [noParams, setNoParams] = useState(false);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     const transactionId = params.get('transaction');
 
     if (!id || !transactionId) {
-      setError('Enlace inválido. La URL debe tener el formato: ?id=xxx&transaction=xxx');
+      setNoParams(true);
       setLoading(false);
       return;
     }
@@ -121,6 +123,44 @@ export function Dashboard() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Cargando registro...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (noParams) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md mx-4 text-center"
+        >
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 mx-auto mb-6">
+            <ShieldCheck className="h-10 w-10 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Panel de Verificacion</h1>
+          <p className="text-muted-foreground mb-6">
+            Bienvenido al panel de administracion. Para verificar un pago, abre el enlace que incluye los parametros de la transaccion.
+          </p>
+          <div className="rounded-xl border border-border bg-muted/30 p-4 text-left">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Formato del enlace</p>
+            <code className="text-sm text-primary break-all">
+              ?id=identificador&transaction=numero
+            </code>
+          </div>
+          <div className="mt-6 flex items-center gap-3 justify-center text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle className="h-4 w-4 text-emerald-500" />
+              <span>Confirmar pagos</span>
+            </div>
+            <span className="text-border">|</span>
+            <div className="flex items-center gap-1.5">
+              <XCircle className="h-4 w-4 text-rose-500" />
+              <span>Rechazar pagos</span>
+            </div>
+          </div>
+        </motion.div>
       </div>
     );
   }
