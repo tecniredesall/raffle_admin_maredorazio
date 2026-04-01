@@ -1,4 +1,4 @@
 export const environment = {
   apiBaseUrl:
-    import.meta.env.VITE_API_BASE_URL || "https://none.com",
+    import.meta.env.VITE_API_BASE_URL || "https://none-admin.com",
 };
