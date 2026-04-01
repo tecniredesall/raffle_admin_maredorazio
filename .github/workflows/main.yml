@@ -1,0 +1,93 @@
+name: Deploy Admin Panel
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    # Mantenemos tu guardia de seguridad y el entorno
+    if: github.repository != 'fhidalgoGC/rafflePrompt'
+    environment: dev
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Validar Secrets del Environment
+        shell: bash
+        run: |
+          MISSING=()
+          [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ] && MISSING+=("AWS_ACCESS_KEY_ID")
+          [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ] && MISSING+=("AWS_SECRET_ACCESS_KEY")
+          [ -z "${{ secrets.S3_BUCKET_NAME }}" ] && MISSING+=("S3_BUCKET_NAME")
+          [ -z "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" ] && MISSING+=("CLOUDFRONT_DISTRIBUTION_ID")
+          
+          if [ ${#MISSING[@]} -ne 0 ]; then
+            echo "ERROR: Faltan secrets en 'prod': ${MISSING[*]}"
+            exit 1
+          fi
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Configurar caché de pnpm
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Instalar dependencias
+        run: pnpm install
+
+      - name: Ejecutar Build (Admin Panel)
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          PORT: 3000
+          BASE_PATH: /
+        run: pnpm --filter @workspace/admin-panel run build:static
+
+      - name: Validar Directorio de Salida
+        shell: bash
+        run: |
+          OUTPUT_DIR="artifacts/admin-panel/dist/public"
+          echo "Verificando artefactos en $OUTPUT_DIR..."
+          if [ ! -d "$OUTPUT_DIR" ]; then
+            echo "ERROR: El directorio $OUTPUT_DIR no existe."
+            exit 1
+          fi
+          FILE_COUNT=$(ls -A "$OUTPUT_DIR" | wc -l)
+          if [ "$FILE_COUNT" -eq 0 ]; then
+            echo "ERROR: El directorio $OUTPUT_DIR está vacío."
+            exit 1
+          fi
+          echo "Validación exitosa. Archivos encontrados: $FILE_COUNT"
+
+      - name: Configurar credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Subir contenido a S3
+        run: |
+          aws s3 sync artifacts/admin-panel/dist/public/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+
+      - name: Invalidar caché de CloudFront
+        run: |
+          echo "Creando invalidación para la distribución ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}..."
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
