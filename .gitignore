@@ -1,0 +1,14 @@
+# Dependencies (cualquier node_modules en el repo, p. ej. raíz, artifacts/admin-panel, lib/*)
+**/node_modules/
+
+# Build output (cualquier dist, p. ej. artifacts/admin-panel/dist)
+**/dist/
+
+# Logs & OS
+*.log
+.DS_Store
+
+# Local env (cualquier ruta, p. ej. raíz o artifacts/admin-panel/.env)
+**/.env
+**/.env.*
+!**/.env.example
