@@ -37,15 +37,56 @@ Esto instalará todas las dependencias de todos los paquetes del monorepo.
 
 ## Paso 3: Variables de entorno
 
-El proyecto necesita estas variables de entorno para funcionar. Puedes configurarlas directamente en la terminal antes de ejecutar el comando de desarrollo, o crear un archivo `.env` en la carpeta `artifacts/admin-panel/`.
+### ¿Dónde va el archivo `.env`?
 
-| Variable              | Descripción                                      | Ejemplo                              |
-|-----------------------|--------------------------------------------------|--------------------------------------|
-| `PORT`                | Puerto donde correrá la app                      | `3000`                               |
-| `BASE_PATH`           | Ruta base de la app                              | `/`                                  |
-| `VITE_API_BASE_URL`   | (Opcional) URL de la API backend                 | `https://api.dev.maredorazio.com`    |
+El archivo `.env` debe crearse en `artifacts/admin-panel/`, al mismo nivel que `vite.config.ts`:
+
+```
+artifacts/
+└── admin-panel/
+    ├── .env                ← Aquí va el archivo
+    ├── vite.config.ts
+    ├── package.json
+    └── client/
+        └── src/
+```
+
+### Contenido del archivo `.env`
+
+```env
+PORT=3000
+BASE_PATH=/
+VITE_API_BASE_URL=https://tu-api.com
+```
+
+### Variables disponibles
+
+| Variable              | Descripción                                      | Ejemplo                              | Accesible desde React |
+|-----------------------|--------------------------------------------------|--------------------------------------|-----------------------|
+| `PORT`                | Puerto donde correrá la app                      | `3000`                               | No                    |
+| `BASE_PATH`           | Ruta base de la app                              | `/`                                  | No                    |
+| `VITE_API_BASE_URL`   | (Opcional) URL de la API backend                 | `https://api.dev.maredorazio.com`    | Sí                    |
 
 Si no defines `VITE_API_BASE_URL`, la app usará por defecto `https://api.dev.maredorazio.com`.
+
+**Importante:** Solo las variables que empiezan con `VITE_` son accesibles desde el código del cliente (React). Las demás (`PORT`, `BASE_PATH`) solo se usan al momento de ejecutar los comandos de desarrollo o build.
+
+### Archivos `.env` por ambiente
+
+Vite soporta múltiples archivos `.env` para diferentes ambientes. Todos van en `artifacts/admin-panel/`:
+
+| Archivo             | Cuándo se carga                          | ¿Se sube a git? |
+|---------------------|------------------------------------------|------------------|
+| `.env`              | Siempre                                  | Sí               |
+| `.env.local`        | Siempre (sobreescribe `.env`)            | No               |
+| `.env.development`  | Solo en modo desarrollo (`dev`)          | Sí               |
+| `.env.production`   | Solo en modo producción (`build`)        | Sí               |
+
+Por ejemplo, puedes tener:
+- `.env.development` con `VITE_API_BASE_URL=https://api.dev.tudominio.com`
+- `.env.production` con `VITE_API_BASE_URL=https://api.tudominio.com`
+
+Vite cargará automáticamente el archivo correcto según el modo en que se ejecute.
 
 ---
 
@@ -110,5 +151,5 @@ proyecto/
 
 ## Notas adicionales
 
-- El `index.html` incluye una meta tag de `Cache-Control` para evitar que el navegador cachee la página. Ver `docs/README.md` para más detalles.
+- El `index.html` incluye una meta tag de `Cache-Control` para evitar que el navegador cachee la página. Ver `docs/NO_CACHE-README.md` para más detalles.
 - Al compilar para producción, Vite agrega un hash único al nombre de los archivos JS y CSS, forzando al navegador a descargar siempre la versión más reciente.
