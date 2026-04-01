@@ -9,7 +9,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     # Mantenemos tu guardia de seguridad y el entorno
-    if: github.repository != 'fhidalgoGC/rafflePrompt'
+    if: github.repository != 'fhidalgoGC/rafflePrompt1'
     environment: dev
 
     steps:
