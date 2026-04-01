@@ -49,7 +49,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Instalar dependencias
-        run: pnpm install
+        run:  pnpm install --no-frozen-lockfile
 
       - name: Ejecutar Build (Admin Panel)
         env:
