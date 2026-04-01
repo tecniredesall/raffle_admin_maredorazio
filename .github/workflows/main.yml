@@ -83,11 +83,11 @@ jobs:
 
       - name: Subir contenido a S3
         run: |
-          aws s3 sync artifacts/admin-panel/dist/public/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+          #aws s3 sync artifacts/admin-panel/dist/public/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
 
       - name: Invalidar caché de CloudFront
         run: |
-          echo "Creando invalidación para la distribución ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}..."
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
+          #echo "Creando invalidación para la distribución ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}..."
+          #aws cloudfront create-invalidation \
+            #--distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            #--paths "/*"
