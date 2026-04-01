@@ -81,13 +81,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      #- name: Subir contenido a S3
-        #run: |
-          #aws s3 sync artifacts/admin-panel/dist/public/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+      - name: Subir contenido a S3
+        run: |
+          aws s3 sync artifacts/admin-panel/dist/public/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
 
-      #- name: Invalidar caché de CloudFront
-        #run: |
-          #echo "Creando invalidación para la distribución ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}..."
-          #aws cloudfront create-invalidation \
-            #--distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            #--paths "/*"
+      - name: Invalidar caché de CloudFront
+        run: |
+          echo "Creando invalidación para la distribución ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}..."
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
